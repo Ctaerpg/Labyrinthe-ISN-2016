@@ -5,7 +5,7 @@ from graphics_isn import *
 x=600
 y=600
 
-def bdd_m():
+def bdd_m(): #mini "bdd" des monstres puis 4 fonctions retournant les caractéristiques du monstre choisi aléatoirement ---> concaténer ? puis du joueur ----> systeme de sauvegarde par la suite
     #du type monstre=[attaque,(defense,)hp,mana]
     global monstre_combat    
     monstre1=[1,0,10,10]
@@ -16,7 +16,7 @@ def bdd_m():
     monstre_combat=monstres[monstres_choix]
     return monstre_combat
 
-def bdd_hp_m():
+def bdd_hp_m(): #trop de global ??????? ---> a ne pas en abuser, mais comment faire sinon pour faire des petites fonctions ?
     global hp_m
     hp_m=monstre_combat[2]
     return hp_m
@@ -52,7 +52,7 @@ def aff_init():
     draw_line(Point(0,11*y/12),Point(x,11*y/12),white) #zone de contrôle avec clics -> attaque
     draw_line(Point(x/4,11*y/12),Point(x/4,y),white) # -> magie
     draw_line(Point(3*x/4,11*y/12),Point(3*x/4,y),white) # -> defense
-    draw_line(Point(2*x/4,11*y/12),Point(2*x/4,y),white) # -> ???
+    draw_line(Point(2*x/4,11*y/12),Point(2*x/4,y),white) # -> fuite/sac
     texte="Attaque" #affichage de la case attaque
     aff_pol(texte,15,Point(0,11*y/12),white)
     texte="Magie" #affichage de la case magie
@@ -73,7 +73,7 @@ def aff_init():
     texte="MANA:"
     aff_pol(texte,15,Point(350,490),blue)
     aff_pol(texte,15,Point(90,150),blue)
-    bdd_hp_j()
+    bdd_hp_j() #affiche les barres de vie/mana etc --> a changer ! (qd 50 pdv, 50 carrés)
     aff_hp_j(hp_j)
     bdd_hp_m()    
     aff_hp_m(hp_m)
@@ -82,7 +82,7 @@ def aff_init():
     bdd_mana_m()    
     aff_mana_m(mana_m)
 
-def aff_hp_j(hp_j):
+def aff_hp_j(hp_j): #cf au dessus
     k=100
     for i in range(hp_j):
         k+=25
@@ -107,11 +107,12 @@ def aff_mana_m(mana_m):
         draw_fill_rectangle(Point(100+k,150),25,25,blue)
 
 def deroulement_combat():
-    global hp_m
+    global hp_m #globalisation des variables --> a changer !
     global hp_j
     global mana_m
     global mana_j
     global att_m
+    defense=0 #defense de base du joueur, trouver où le mettre/comment changer
     P=wait_clic()
     if P.y<=(11*x/12):
         return 0
@@ -124,40 +125,56 @@ def deroulement_combat():
         mana_j-=1
         print("magie + hp_m",hp_m)
         aff_hp_m(hp_m)
-    elif P.x<=(3*x/4) and P.x>=(2*x/4) and P.y>=(11*x/12): #si le joueur clique dans defense, ne fait rien pour le moment.
+    elif P.x<=(3*x/4) and P.x>=(2*x/4) and P.y>=(11*x/12): #si le joueur clique dans defense, divise les dégats qu'il prend par 2
         print("def ---> ne fait rien")
+        defense=1
     else:
         return 0
-    attendre(250)
+    attendre(250) #attend pour plus de fluidité
     print("hp_j before "+str(hp_j))
-    hp_j-=bdd_att_m()
-    print("hp_j after "+str(hp_j)+" att_m "+str(bdd_att_m()))
-    draw_fill_rectangle(Point(x/4,y/2),1000,200,black)
-    attendre(750)
-    texte="Le monstre vous a attaqué et vous avez perdu "+str(bdd_att_m())+" pdv, vous êtes à "+str(hp_j)+" pdv."
-    aff_pol(texte,10,Point(x/4,y/2),red)
-    texte="Le monstre a "+str(hp_m)+" pdv restants."
-    aff_pol(texte,10,Point(x/4,y/2+50),red)
-    attendre(250)
-    aff_hp_j(hp_j)
-    print("hp_j end "+str(hp_j))
+    if defense==1: #si def = 1
+        hp_j-=ceil(int(bdd_att_m())/2) #dégat arrondi au supérieur divisé par 2
+        print("hp_j after "+str(hp_j)+" att_m "+str(bdd_att_m()))
+        draw_fill_rectangle(Point(x/4,y/2),1000,200,black) #cache ce qu'il y a au milieu de l'écran pour éviter la superposition
+        attendre(750) #attend  pour plus de fluidité
+        texte="Le monstre vous a attaqué et vous avez perdu "+str(ceil(int(bdd_att_m())/2))+" pdv deux fois moins car vous vous êtes défendu, vous êtes à "+str(hp_j)+" pdv." #petit texte pour le joueur
+        aff_pol(texte,10,Point(x/4-100,y/2),red)
+        texte="Le monstre a "+str(hp_m)+" pdv restants." #idem
+        aff_pol(texte,10,Point(x/4,y/2+50),red)
+        attendre(250) #idem
+        aff_hp_j(hp_j)
+        print("hp_j end "+str(hp_j))
+        defense=0 #réinitialise la defense 
+    else: #idem sauf que les dégats sont entiers
+        hp_j-=bdd_att_m()
+        print("hp_j after "+str(hp_j)+" att_m "+str(bdd_att_m()))
+        draw_fill_rectangle(Point(x/4,y/2),1000,200,black)
+        attendre(750)
+        texte="Le monstre vous a attaqué et vous avez perdu "+str(bdd_att_m())+" pdv, vous êtes à "+str(hp_j)+" pdv."
+        aff_pol(texte,10,Point(x/4-100,y/2),red)
+        texte="Le monstre a "+str(hp_m)+" pdv restants."
+        aff_pol(texte,10,Point(x/4,y/2+50),red)
+        attendre(250)
+        aff_hp_j(hp_j)
+        print("hp_j end "+str(hp_j))
+        
 
 def main():
-    global hp_j
+    global hp_j #globalisation.....
     global hp_m
     global mana_j
-    bdd_m()
-    bdd_hp_j()
+    bdd_m() #définir les caracs du monstre init ----> changer et mettre dans un tableur/.txt pour la sauvegarde
+    bdd_hp_j() #définir les hp du joueur init
     bdd_mana_j()
-    combat=1
-    aff_init()
-    if hp_m==10:
+    combat=1 #initialise le combat --> période de test, elever et rajouter un event de rencontre avec un mob comment initialisateur
+    aff_init() #affiche la zone des touches de combats etc. le graphisme test
+    if hp_m==10: #petit affichage test
         aff_pol("monstre1",15,Point(x/4+50,y/15),red)
     elif hp_m==20:
         aff_pol("monstre2",15,Point(x/4+50,y/15),red)
     elif hp_m==30:
         aff_pol("monstre3",15,Point(x/4+50,y/15),red)        
-    if combat==1:
+    if combat==1: #si combat lancé et tant que les hps sont positifs (et donc qu'ils vivent tous les deux) faire le combat
         while hp_j>0 and hp_m>0:
             deroulement_combat()
         wait_escape()
