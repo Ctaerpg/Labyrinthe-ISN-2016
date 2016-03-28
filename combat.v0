@@ -1,0 +1,165 @@
+from graphics_isn import *
+
+#test du combat avec un monstre normal qui ne fait qu'attaquer !
+
+x=600
+y=600
+
+def bdd_m():
+    #du type monstre=[attaque,(defense,)hp,mana]
+    global monstre_combat    
+    monstre1=[1,0,10,10]
+    monstre2=[2,0,20,10]
+    monstre3=[5,0,30,0]
+    monstres=[monstre1,monstre2,monstre3]
+    monstres_choix=alea_int(0,len(monstres)-1)
+    monstre_combat=monstres[monstres_choix]
+    return monstre_combat
+
+def bdd_hp_m():
+    global hp_m
+    hp_m=monstre_combat[2]
+    return hp_m
+
+def bdd_mana_m():
+    global mana_m
+    mana_m=monstre_combat[3]
+    return mana_m
+    
+def bdd_att_m():
+    global att_m
+    att_m=monstre_combat[0]
+    return att_m
+    
+def bdd_def_m():
+    global def_m
+    def_m=monstre_combat[1]
+    return def_m    
+
+def bdd_hp_j():
+    global hp_j
+    hp_j=50
+    return hp_j
+
+def bdd_mana_j():
+    global mana_j
+    mana_j=10
+    return mana_j    
+    
+#Affique les zones de clics, le monstre, et le personnage
+def aff_init():
+    init_graphic(x,y,"Mini-RPG")
+    draw_line(Point(0,11*y/12),Point(x,11*y/12),white) #zone de contrôle avec clics -> attaque
+    draw_line(Point(x/4,11*y/12),Point(x/4,y),white) # -> magie
+    draw_line(Point(3*x/4,11*y/12),Point(3*x/4,y),white) # -> defense
+    draw_line(Point(2*x/4,11*y/12),Point(2*x/4,y),white) # -> ???
+    texte="Attaque" #affichage de la case attaque
+    aff_pol(texte,15,Point(0,11*y/12),white)
+    texte="Magie" #affichage de la case magie
+    aff_pol(texte,15,Point(x/4,11*y/12),white)
+    texte="Defense" #affichage de la case defense
+    aff_pol(texte,15,Point(2*x/4,11*y/12),white)
+    texte="???" #soon?
+    aff_pol(texte,15,Point(3*x/4,11*y/12),white)
+    draw_rectangle(Point(135,500),80,50,white) #carré joueur
+    texte="Joueur" #affichage du joueur
+    aff_pol(texte,15,Point(100,500),white)
+    draw_rectangle(Point(535,100),80,50,white) #carré monstre
+    texte="Monstre"  #affichage du monstre
+    aff_pol(texte,15,Point(500,100),white)
+    texte="HP:" #affichage hp/mana joueur
+    aff_pol(texte,15,Point(350,435),red)
+    aff_pol(texte,15,Point(90,100),red)
+    texte="MANA:"
+    aff_pol(texte,15,Point(350,490),blue)
+    aff_pol(texte,15,Point(90,150),blue)
+    bdd_hp_j()
+    aff_hp_j(hp_j)
+    bdd_hp_m()    
+    aff_hp_m(hp_m)
+    bdd_mana_j()
+    aff_mana_j(mana_j)
+    bdd_mana_m()    
+    aff_mana_m(mana_m)
+
+def aff_hp_j(hp_j):
+    k=100
+    for i in range(hp_j):
+        k+=25
+        draw_fill_rectangle(Point(100+k,475),25,25,red) #compteur de la vie du joueur
+        
+def aff_mana_j(mana_j):
+    k=100
+    for i in range(mana_j):
+        k+=25
+        draw_fill_rectangle(Point(100+k,525),25,25,blue)
+
+def aff_hp_m(hp_m):
+    k=100
+    for i in range(hp_m):
+        k+=25
+        draw_fill_rectangle(Point(100+k,100),25,25,red) #compteur de la vie du monstre
+        
+def aff_mana_m(mana_m):
+    k=100
+    for i in range(mana_m):
+        k+=25
+        draw_fill_rectangle(Point(100+k,150),25,25,blue)
+
+def deroulement_combat():
+    global hp_m
+    global hp_j
+    global mana_m
+    global mana_j
+    global att_m
+    P=wait_clic()
+    if P.y<=(11*x/12):
+        return 0
+    if P.x<=(x/4) and P.y>=(11*x/12): #si le joueur clique dans la case attaque, le monstre perd 1 hp
+        hp_m-=1
+        print("attaque + hp_m",hp_m)
+        aff_hp_m(hp_m)
+    elif P.x<=(2*x/4) and P.x>=(x/4) and P.y>=(11*x/12) and mana_j>0: #si le joueur clique dans la case magie, le monstre perd 2 hp, et le joueur 1 mana, regarde si le joueur a assez de mana
+        hp_m-=2
+        mana_j-=1
+        print("magie + hp_m",hp_m)
+        aff_hp_m(hp_m)
+    elif P.x<=(3*x/4) and P.x>=(2*x/4) and P.y>=(11*x/12): #si le joueur clique dans defense, ne fait rien pour le moment.
+        print("def ---> ne fait rien")
+    else:
+        return 0
+    attendre(250)
+    print("hp_j before "+str(hp_j))
+    hp_j-=bdd_att_m()
+    print("hp_j after "+str(hp_j)+" att_m "+str(bdd_att_m()))
+    draw_fill_rectangle(Point(x/4,y/2),1000,200,black)
+    attendre(750)
+    texte="Le monstre vous a attaqué et vous avez perdu "+str(bdd_att_m())+" pdv, vous êtes à "+str(hp_j)+" pdv."
+    aff_pol(texte,10,Point(x/4,y/2),red)
+    texte="Le monstre a "+str(hp_m)+" pdv restants."
+    aff_pol(texte,10,Point(x/4,y/2+50),red)
+    attendre(250)
+    aff_hp_j(hp_j)
+    print("hp_j end "+str(hp_j))
+
+def main():
+    global hp_j
+    global hp_m
+    global mana_j
+    bdd_m()
+    bdd_hp_j()
+    bdd_mana_j()
+    combat=1
+    aff_init()
+    if hp_m==10:
+        aff_pol("monstre1",15,Point(x/4+50,y/15),red)
+    elif hp_m==20:
+        aff_pol("monstre2",15,Point(x/4+50,y/15),red)
+    elif hp_m==30:
+        aff_pol("monstre3",15,Point(x/4+50,y/15),red)        
+    if combat==1:
+        while hp_j>0 and hp_m>0:
+            deroulement_combat()
+        wait_escape()
+
+print(main())
