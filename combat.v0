@@ -2,6 +2,9 @@ from graphics_isn import *
 
 #test du combat avec un monstre normal qui ne fait qu'attaquer !
 
+#bug si la fenetre est pas 600x600 !!!!!!! limiter la fenetre à ça ou essayer de le regler pendant la remise a neuf du code pas beau :c
+
+#possibilité d'ouvrir deux instances de fenetre graphique python ?
 x=600
 y=600
 
@@ -82,7 +85,7 @@ def aff_init():
     bdd_mana_m()    
     aff_mana_m(mana_m)
 
-def aff_hp_j(hp_j): #cf au dessus
+def aff_hp_j(hp_j): #cf au dessus + bug, gerer l'affichage ---> voir avec anthony pour le graphisme
     k=100
     for i in range(hp_j):
         k+=25
@@ -152,7 +155,7 @@ def deroulement_combat():
         attendre(750)
         texte="Le monstre vous a attaqué et vous avez perdu "+str(bdd_att_m())+" pdv, vous êtes à "+str(hp_j)+" pdv."
         aff_pol(texte,10,Point(x/4-100,y/2),red)
-        texte="Le monstre a "+str(hp_m)+" pdv restants."
+        texte="Le monstre a "+str(hp_m)+" pdv restants." #gérer si les pdv sont négatifs
         aff_pol(texte,10,Point(x/4,y/2+50),red)
         attendre(250)
         aff_hp_j(hp_j)
