@@ -1,0 +1,245 @@
+from graphics_isn import*
+init_graphic(900,600, "Projet BAC - ISN")
+
+boss = 0 #Variable du boss, qui permet de lancer le combat contre le boss lorsqu'elle est modifiée
+n = 0 #Variable du niveau, qui permet de choisir entre les 4 labyrinthes
+
+def __init__(self, droite, gauche, haut, bas, niveau):
+        """
+        Fonction initiant les images et la position de départ
+        """
+	#Sprites du personnage
+        self.bas = pygame.image.load("Link_bas.png").convert_alpha()
+        self.droite = pygame.image.load("Link_droite.png").convert_alpha()
+        self.gauche = pygame.image.load("Link_gauche.png").convert_alpha()
+        self.haut = pygame.image.load("Link_haut.png").convert_alpha()
+	#Position de départ du personnage en cases et en pixels
+	if n == 0: #tutoriel
+                self.case_x = 7
+                self.case_y = 7
+                self.x = 7*40
+                self.y = 7*40
+        elif n == 1: #premier niveau
+                self.case_x = 14
+                self.case_y = 14
+                self.x = 14*40
+                self.y = 14*40
+        elif n == 2: #niveau glace
+                self.case_x = 2
+                self.case_y = 2
+                self.x = 2*40
+                self.y = 2*40
+        elif n == 3: #niveau boss
+                self.case_x = 8
+                self.case_y = 14
+                self.x = 8*40
+                self.y = 14*40
+	self.direction = self.bas #Direction de départ
+	self.niveau = niveau #Niveau courant
+		
+def déplacement():
+            """
+            Fonction permettant le déplacement des personnages
+            """
+            continuer = 1
+            while continuer :
+                for event in pygame.event.get(): 
+                    if event.type == pygame.QUIT:
+                        continuer = 0
+                        return 0
+                    if event.type == KEYDOWN: #Une touche est pressée
+                        if event.key == K_UP or event.key == K_w or event.key == K_DOWN or event.key == K_s or event.key == K_RIGHT or event.key == K_d or event.key == K_LEFT or event.key == K_a or event.key == K_i:
+                            if event.key == K_UP or event.key == K_w: #Déplacement vers le haut
+                                if self.case_y > 0:
+                                    if self.niveau.structure[self.case_y-1][self.case_x] == "2": #On vérifie que la case de destination n'est pas de la glace
+                                        while self.niveau.structure[self.case_y-1][self.case_x] != "1": #On continue de déplacer le sprite jusqu'à atteindre un mur
+                                            attendre(500) #Permet le déplacement progressif du sprite
+                                            self.case_y -= 1 #On effectue le déplacement
+                                            self.y = self.case_y * taille_sprite
+                                            print(sprites_Link.haut()) #Affiche le sprite aux nouvelles positions
+                                    elif self.niveau.structure[self.case_y-1][self.case_x] == "a":
+                                        self.case_y -= 1 #On effectue le déplacement
+                                        self.y = self.case_y * 40 #On retrouve la position en pixel du sprite
+                                        print("FIN NIVEAU")
+                                        continuer = 0 #On termine le niveau
+                                        n += 1 #Permet d'accéder au prochain labyrinthe                                        
+                                        menu() #On retourne à la ville
+                                    elif self.niveau.structure[self.case_y-1][self.case_x] == "m":
+                                        self.case_y -= 1
+                                        combat()
+                                    elif self.niveau.structure[self.case_y-1][self.case_x] != "1":
+                                        self.case_y -= 1 #On effectue le déplacement
+                                        self.x = self.case_y * 40 #Calcul de la position "réelle" en pixel
+                                        self.direction = self.haut #Image dans la bonne direction
+                                    if self.niveau.structure[self.case_y-1][self.case_x] == "b":
+                                        boss = 1
+                                        print(combat())
+                            elif event.key == K_DOWN or event.key == K_s: #Déplacement vers le bas
+                                if self.case_y < 14:
+                                    if self.niveau.structure[self.case_y+1][self.case_x] == "2":
+                                        while self.niveau.structure[self.case_y-1][self.case_x] != "1":
+                                            attendre(500)
+                                            self.case_y += 1
+                                            self.y = self.case_y * 40
+                                            self.direction = self.bas
+                                    elif self.niveau.structure[self.case_y+1][self.case_x] == "a":
+                                        self.case_y += 1
+                                        self.y = self.case_y * 40
+                                        print("FIN NIVEAU")
+                                        continuer = 0
+                                        n += 1
+                                        menu()
+                                    elif self.niveau.structure[self.case_y+1][self.case_x] == "m":
+                                        self.case_y += 1
+                                        print(combat())
+                                    elif self.niveau.structure[self.case_y+1][self.case_x] != "1":
+                                        self.case_x += 1
+                                        self.x = self.case_y * 40
+                                        self.direction = self.bas
+                                    if self.niveau.structure[self.case_y+1][self.case_x] == "b":
+                                        boss = 1
+                                        combat()
+                            elif event.key == K_RIGHT or event.key == K_d: #Déplacement vers la droite
+                                if self.case_x < (nombre_sprite_cote - 1):
+                                    if self.niveau.structure[self.case_y][self.case_x+1] == "2":
+                                        while self.niveau.structure[self.case_y][self.case_x+1] != "1":
+                                            attendre(500)
+                                            self.case_x += 1
+                                            self.x = self.case_x * taille_sprite
+                                            self.direction = self.droite
+                                    elif self.niveau.structure[self.case_x+1][self.case_x] == "a":
+                                        self.case_y += 1
+                                        self.y = self.case_x * 40
+                                        print("FIN NIVEAU")
+                                        continuer = 0
+                                        n += 1
+                                        menu()                                        
+                                    elif self.niveau.structure[self.case_y][self.case_x+1] == "m":
+                                        self.case_x += 1
+                                        combat()
+                                    elif self.niveau.structure[self.case_y][self.case_x+1] != "1":
+                                        self.case_x += 1
+                                        self.x = self.case_x * taille_sprite
+                                        self.direction = self.droite
+                                    if self.niveau.structure[self.case_y][self.case_x+1] == "b":
+                                        boss = 1
+                                        combat()
+                            elif event.key == K_LEFT or event.key == K_a: #Déplacement vers la gauche
+                                if self.case_x < 14:
+                                    if self.niveau.structure[self.case_y][self.case_x-1] == "2":
+                                        while self.niveau.structure[self.case_y][self.case_x-1] != "1":
+                                            attendre(500)
+                                            self.case_x -= 1
+                                            self.y = self.case_y * taille_sprite
+                                            self.direction = self.gauche
+                                    elif self.niveau.structure[self.case_y-1][self.case_x] == "a":
+                                        self.case_x -= 1
+                                        self.y = self.case_y * taille_sprite
+                                        print("FIN NIVEAU")
+                                        continuer = 0
+                                        n += 1
+                                        menu())                                        
+                                    elif self.niveau.structure[self.case_y][self.case_x-1] == "m":
+                                        self.case_x -= 1
+                                        combat()
+                                    elif self.niveau.structure[self.case_y][self.case_x-1] != "1":
+                                        self.case_x -= 1
+                                        self.x = self.case_y * taille_sprite
+                                        self.direction = self.gauche
+                                    if self.niveau.structure[self.case_y][self.case_x-1] == "b":
+                                        boss = 1
+                                        combat()
+                        niveau.afficher(fenetre) #Affiche les nouvelles positions
+                        fenetre.blit(Link.direction, (Link.x, Link.y))#L'image se met dans la bonne direction
+                        pygame.display.flip() #Rafraîchit le labyrinthe
+
+class Niveau:
+	"""
+        Classe permettant de créer un niveau
+        """
+	def __init__(self, fichier):
+		self.fichier = fichier
+		self.structure = 0
+	
+	
+	def generer(self):
+		"""
+                Méthode permettant de générer le niveau en fonction du fichier.
+		On crée une liste générale, contenant une liste par ligne à afficher
+		"""	
+		#On ouvre le fichier
+		with open(self.fichier, "r") as fichier:
+			structure_niveau = []
+			#On parcourt les lignes du fichier
+			for ligne in fichier:
+				ligne_niveau = []
+				#On parcourt les sprites (lettres) contenus dans le fichier
+				for sprite in ligne:
+					#On ignore les "\n" de fin de ligne
+					if sprite != '\n':
+						#On ajoute le sprite à la liste de la ligne
+						ligne_niveau.append(sprite)
+				#On ajoute la ligne à la liste du niveau
+				structure_niveau.append(ligne_niveau)
+			#On sauvegarde cette structure
+			self.structure = structure_niveau
+	
+	def afficher(self, fenetre):
+		"""
+                Méthode permettant d'afficher le niveau en fonction 
+		de la liste de structure renvoyée par generer()
+		"""
+		mur = pygame.image.load("mur.png").convert()
+		arrivee = pygame.image.load("arrivee.png").convert()
+		sol = pygame.image.load("sol.png").convert()
+		glace = pygame.image.load("glace.png").convert()
+		monstre = pygame.image.load("monstre.png").convert()
+		boss = pygame.image.load("boss.png").convert()
+		
+		#On parcourt la liste du niveau
+		num_ligne = 0
+		for ligne in self.structure:
+			#On parcourt les listes de lignes
+			num_case = 0
+			for sprite in ligne:
+				#On calcule la position réelle en pixels
+				x = num_case * taille_sprite
+				y = num_ligne * taille_sprite
+				if sprite == "m":
+					fenetre.blit(mur, (x,y))
+
+				elif sprite == "a":
+					fenetre.blit(arrivee, (x,y))
+				elif sprite == "0"
+                                        fenetre.blit(sol, (x,y))
+				elif sprite == "2"
+                                        fenetre.blit(glace, (x,y))
+				elif sprite == "m"
+                                        fenetre.blit(monstre, (x,y))
+				elif sprite == "b"
+                                        fenetre.blit(boss, (x,y))
+				num_case += 1
+			num_ligne += 1
+
+def main():
+        """
+        Boucle de jeu
+        """
+    
+        #Génération d'un niveau à partir d'un fichier
+	niveau = Niveau(n)
+	niveau.generer()
+	niveau.afficher(fenetre)
+	
+	#Création de Link
+	dk = Perso("link/link_droite.png", "link/link_gauche.png", 
+	"link/link_haut.png", "link/link_bas.png", niveau)
+		
+        pygame.time.Clock().tick(50) #Bride le jeu à 50fps :O
+        #FONCTIONS DE JEU
+        déplacement()
+        aff_pol("Jeu terminé !",30,Point(350,200),red)
+        wait_escape ()
+        return 0
+
+print(main())
