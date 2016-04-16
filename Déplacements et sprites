@@ -237,6 +237,7 @@ def main():
 		
         pygame.time.Clock().tick(50) #Bride le jeu à 50fps :O
         #FONCTIONS DE JEU
+        __init__()
         déplacement()
         aff_pol("Jeu terminé !",30,Point(350,200),red)
         wait_escape ()
