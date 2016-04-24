@@ -1,0 +1,169 @@
+from graphics_isn import *
+
+x=600 #taille de la fenetre graphique
+y=600
+#X=[att,hp,mana,nom]
+m1=[1,10,0,0,"Rat"] #3 types de monstres
+m2=[2,20,0,1,"Loup"]
+m3=[5,30,0,2,"Ours"]
+monstres=[m1,m2,m3] # renvoit un choix aleatoire d'un des 3 monstres
+monstres_choix=alea_int(0,len(monstres)-1)
+m=monstres[monstres_choix]
+j=[5,20,10,1,"Joueur"] #données du joueur
+cbt=1 #initialise l'event combat
+m_i=list(m) #données initiales du monstre/joueur, pour faire des manipulations/reset.
+j_i=list(j)
+
+
+#mettre les donnes des monstres/joueurs dans des fichiers ! ---> sauvegarde
+
+def aff_init():
+    """
+    Affiche un graphisme test de base
+    """
+    init_graphic(x,y,"Combat")
+    draw_line(Point(0,11*y/12),Point(x,11*y/12),white) #affiche l'interface graphique
+    draw_line(Point(x/4,11*y/12),Point(x/4,y),white)
+    draw_line(Point(3*x/4,11*y/12),Point(3*x/4,y),white)
+    draw_line(Point(2*x/4,11*y/12),Point(2*x/4,y),white)
+    aff_pol("Attaque",15,Point(0,11*y/12),white) #ecrit dans l'interface graphique
+    aff_pol("Magie",15,Point(x/4,11*y/12),white)
+    aff_pol("Défense",15,Point(2*x/4,11*y/12),white)
+    aff_pol("???",15,Point(3*x/4,11*y/12),white)
+    draw_rectangle(Point(135,500),80,50,white) #carré du joueur
+    draw_rectangle(Point(535,100),80,50,white) #carré du monstre
+    texte=str(j[4])
+    aff_pol(texte,15,Point(100,500),white)
+    texte=str(m[4])
+    aff_pol(texte,15,Point(500,100),white)
+    aff_pol("HP:",15,Point(240,435),red) #vie du joueur
+    aff_pol("HP:",15,Point(90,100),red) #vie du monstre
+    aff_pol("MANA:",15,Point(240,490),blue) #mana du joueur
+    aff_pol("MANA:",15,Point(90,150),blue) #mana du monstre
+    draw_fill_rectangle(Point(175,175),50,150,black) #hide monstre
+    draw_fill_rectangle(Point(315,475),50,100,black) #hide joueur
+    texte=str(m[1])+"/"+str(m_i[1]) #hp du monstre
+    aff_pol(texte,15,Point(150,100),red)
+    texte=str(j[1])+"/"+str(j_i[1]) #hp du joueur
+    aff_pol(texte,15,Point(290,435),red)
+    texte=str(m[2])+"/"+str(m_i[2]) #mana du monstre
+    aff_pol(texte,15,Point(150,150),blue)
+    texte=str(j[2])+"/"+str(j_i[2]) #mana du joueur
+    aff_pol(texte,15,Point(290,490),blue)
+
+def aff_graph(tj,tm):
+    """
+    Affiche les variables en temps réel.
+    """
+    attendre(2000)
+    draw_fill_rectangle(Point(175,175),50,150,black) #hide monstre
+    draw_fill_rectangle(Point(315,475),50,100,black) #hide joueur
+    texte=str(m[1])+"/"+str(m_i[1]) #hp du monstre
+    aff_pol(texte,15,Point(150,100),red)
+    texte=str(j[1])+"/"+str(j_i[1]) #hp du joueur
+    aff_pol(texte,15,Point(290,435),red)
+    texte=str(m[2])+"/"+str(m_i[2]) #mana du monstre
+    aff_pol(texte,15,Point(150,150),blue)
+    texte=str(j[2])+"/"+str(j_i[2]) #mana du joueur
+    aff_pol(texte,15,Point(290,490),blue)
+    if tj==1: #les deux if affiches juste TOUR DU JOUEUR/TOUR DU MONSTRE en fonction du tour
+        draw_fill_rectangle(Point(x/4,y/2),1000,200,black)
+        aff_pol("Tour du joueur",40,Point(x/4-100,y/2),red)
+        attendre(3000)
+        draw_fill_rectangle(Point(x/4,y/2),1000,200,black)
+    if tm==1:
+        draw_fill_rectangle(Point(x/4,y/2),1000,200,black)
+        aff_pol("Tour du monstre",40,Point(x/4-100,y/2),red)
+        attendre(3000)
+        draw_fill_rectangle(Point(x/4,y/2),1000,200,black)
+
+def tour_j(def_m):
+    """
+    Fonction décrivant les actions du joueur.
+    Si le joueur clique sur "Attaque", le monstre perd des points de vie.
+    Si le joueur clique sur "Magie", le monstre perd des points de vie et le joueur du mana.
+    Si le joueur clique sur "Défense", le joueur se défend et augmente sa défense d'un point pour la prochaine attaque du monstre.
+    Si le joueur a cliqué sur "Attaque", sur "Magie" ou sur "Défense", finit le tour du joueur, et passe au tour du monstre.
+    Si le joueur clique sur "???", ne fait rien.
+    Si le joueur ne clique pas dans les cases appropriées, ne fait rien.
+    """
+    t=1
+    P=wait_clic()
+    while t==1:
+        if P.y<=(11*x/12): #si clic pas dans le grand rectangle du bas
+            tour_j(m[3])
+        if P.x<=(x/4) and P.y>=(11*x/12): #si clic dans attaque
+            m[1]-=j[0]-m[3]
+            draw_fill_rectangle(Point(x/4,y/2),1000,200,black)
+            aff_pol("Vous attaquez le monstre, il perd "+str(j[0]-m[3])+" pdv ("+str(j[0])+"-sa défense(="+str(m[3])+"))",10,Point(x/4-100,y/2),red)
+            attendre(1250)
+        elif P.x<=(2*x/4) and P.x>=(x/4) and P.y>=(11*x/12) and j[2]>0: #si clic dans magie et si joueur a assez de magie
+            m[1]-=j[0]*2
+            j[2]-=5
+            draw_fill_rectangle(Point(x/4,y/2),1000,200,black)
+            aff_pol("Vous magie le monstre, il perd "+str(j[0]*2)+" pdv (la défense ne rentre pas en compte)",10,Point(x/4-100,y/2),red)
+            attendre(1250)
+        elif P.x<=(2*x/4) and P.x>=(x/4) and P.y>=(11*x/12) and j[2]==0: #si clic dans magie mais que le joueur a plus de mana
+            draw_fill_rectangle(Point(x/4,y/2),1000,200,black)
+            aff_pol("Vous n'avez plus assez de mana",10,Point(x/4-100,y/2),red)
+            attendre(1250)
+            tour_j(m[3])
+        elif P.x<=(3*x/4) and P.x>=(2*x/4) and P.y>=(11*x/12): #si clic dans defense
+            j[3]+=1
+            draw_fill_rectangle(Point(x/4,y/2),1000,200,black)
+            aff_pol("Vous vous défendez, vous prendrez "+str(j[3])+" de moins au prochain tour.",10,Point(x/4-100,y/2),red)
+            attendre(1250)
+        else: #si clic dans ??? + gestion bug (mauvais clic)
+            draw_fill_rectangle(Point(x/4,y/2),1000,200,black)
+            aff_pol("Rien ne se passe, cliquez autre part.",10,Point(x/4-100,y/2),red)
+            attendre(1250)
+            tour_j(m[3])
+        t=0 #sortie de la boucle une fois une action effectuée
+    m[3]=m_i[3] #reset la valeur de l'armure
+
+def tour_m(def_j):
+    """
+    Fonction décrivant les actions du monstre.
+    Fonctionne avec une "IA", qui est en fait une variable aléatoire comprise entre 0 et 100. Si cette variable est comprise entre 0 et 75, le monstre attaque, sinon le monstre se défend.
+    """
+    ia=alea_int(0,100) #la fameuse IA
+    t=1
+    while t==1:
+        if 0<=ia<75: #75% de chance que le monstre attaque
+            j[1]-=m[0]-j[3]
+            draw_fill_rectangle(Point(x/4,y/2),1000,200,black)
+            aff_pol("Le monstre attaque, vous avez perdu "+str((m[0]-j[3]))+" pdv ("+str(m[0])+"-votre défense(="+str(j[3])+"))",10,Point(x/4-100,y/2),red)
+            attendre(1250)
+        elif 75<=ia<=100: #25% de chance que le monstre se défende
+            m[3]+=1
+            draw_fill_rectangle(Point(x/4,y/2),1000,200,black)
+            aff_pol("Le monstre se défend, il prendra moins de dégâts! Son armure est désormais de "+str(m[3])+".",10,Point(x/4-100,y/2),red)
+            attendre(1250)
+        t=0 #sortie de la boucle une fois une action effectuée
+    j[3]=j_i[3] #reset la valeur de l'armure
+
+def combat():
+    aff_init() #affiche le graphisme de base
+    if cbt==1:
+        while j[1]>0 and m[1]>0:
+            tm=0 #initialise le tour comme étant celui du joueur et non du monstre
+            tj=1
+            aff_graph(tj,tm)
+            tour_j(m[3])
+            if j[1]==0 or m[1]==0: #empeche le tour suivant si le monstre/joueur meurt
+                break
+            tj=0 #initialise le tour comme étant celui du monstre et non du joueur
+            tm=1
+            aff_graph(tj,tm)
+            tour_m(j[3])
+    if m[1]<=0:
+        draw_fill_rectangle(Point(x/4,y/2),1000,200,black)
+        aff_pol("Vous avez gagné",50,Point(x/4-100,y/2),red)
+        attendre(1250)
+    else:
+        draw_fill_rectangle(Point(x/4,y/2),1000,200,black)
+        aff_pol("Vous avez perdu",50,Point(x/4-100,y/2),red)
+        attendre(1250)
+    wait_escape() #remplacer par reprise du labyrinthe/respawn si mort
+
+print(combat())
