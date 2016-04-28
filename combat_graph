@@ -1,0 +1,395 @@
+from graphics_isn import *
+import pickle
+from constantes import *
+import os
+
+directory=os.getcwd()
+sauv_l={'start':0,'sac':[],'argent':0,'niveau':0} #fichier local qui est modifié pour être envoyé dans la sauvegarde.
+
+def menu_depart():
+    load_image("tower.jpg",Point(0,0)) #Charge l'image de fond
+    U=Point(450,150) #Grand cadre
+    draw_rectangle(U,500,200,white)
+    aff_pol("Bienvenue sur le Labyrinthe !",30,Point(220,130),white)
+    Z=Point(450,400)
+    draw_rectangle(Z,300,100,white)
+    aff_pol("Jouer",40,Point(390,370),white) #rectangle du bouton de départ
+    draw_rectangle(Point(450,500),150,50,white)
+    aff_pol("Règles",25,Point(400,485),white)
+    draw_fill_rectangle(Point(875,25),50,50,red)
+    draw_rectangle(Point(875,25),50,50,white)
+    draw_line(Point(900,0),Point(850,50),white)
+    draw_line(Point(850,0),Point(900,50),white)
+    C=wait_clic()
+    if C.x>=300 and C.x<=600 and C.y>=350 and C.y<=450:
+        draw_fill_rectangle(Point(0,0),9000,6000,black) 
+        cinématique()
+    elif C.x>=300 and C.x<=600 and C.y>=450 and C.y<=550:
+        règles()
+    elif C.x>=825 and C.y<=75:
+        pygame.quit()   
+    return 0
+
+
+def cinématique():
+    f=open("sauvegarde.txt",'rb')
+    a=pickle.load(f)
+    f.close()
+    if a['start']==0:
+        load_image("Village.png",Point(0,0)) #Charge l'image du village de départ
+        aff_pol("Voici la ville de Themyscria, un jour comme un autre dans la paix.",25,Point(35,500),black)
+        wait_clic()
+        draw_fill_rectangle(Point(0,0),9000,6000,black)
+        load_image("Village sombre.png",Point(-500,-100))#Charge l'image du village sombre, après attaque du méchant
+        aff_pol("Mais un jour la sombre Cyrille est apparue, assiégant le village et se réfugiant dans la tour.",18,Point(5,500),white)
+        wait_clic()
+        draw_fill_rectangle(Point(0,0),9000,6000,black)
+        load_image("labyrinthe.png",Point(-550,-300)) 
+        aff_pol("Beaucoup d'aventuriers ont essayé de sauver le village",25,Point(50,500),white)
+        wait_clic()
+        draw_fill_rectangle(Point(0,0),9000,6000,black)
+        load_image("mechant.jpg",Point(-50,0)) #Charge l'image du méchant dragon
+        aff_pol("Mais aucun n'a réussi à vaincre la terrible Cyrille.",25,Point(50,500),white)
+        wait_clic()
+        draw_fill_rectangle(Point(0,0),9000,6000,black)
+        load_image("hero.jpg",Point(0,0)) #Charge l'image du héros
+        aff_pol("Ça ? C'est vous. Vous êtes le héros qui va devoir réussir là où tous ont péri.",20,Point(50,500),black)
+        wait_clic()
+        a['start']=1
+    f=open("sauvegarde.txt",'wb')
+    pickle.dump(a,f)
+    f.close()
+                
+            
+def règles(): #Charge le menu des règles
+    draw_fill_rectangle(Point(0,0),9000,6000,black)
+    aff_pol("Bienvenue sur le jeu du Labyrinthe !",25,Point(10,10),white)
+    aff_pol("Dans ce jeu, le but est de sauver la ville de Themyscria de la méchante Cyrille.",25,Point(10,40),white)
+    aff_pol("Pour ce faire, vous allez devoir braver mille (ou moins :p) dangers",25,Point(10,70),white)
+    aff_pol("à travers les labyrinthes de la tour. Chaque labyrinthe est un étage,",25,Point(10,100),white)
+    aff_pol("ces labyrinthes sont infestés de monstres qui ne désirent que",25,Point(10,130),white)
+    aff_pol("ramener votre tête à leur seigneur. En les battant, vous",25,Point(10,160),white)
+    aff_pol("accumulerez de l'expérience et pourrez devenir plus puissant.",25,Point(10,190),white)
+    aff_pol("A travers votre aventure vous pourrez interagir avec des",25,Point(10,220),white)
+    aff_pol("marchands pour reprendre votre vie ou discuter.",25,Point(10,250),white)
+    aff_pol("Vous avez tout compris ?",25,Point(10,280),white)
+    aff_pol("Alors bon jeu à vous aventurier/ère !",25,Point(10,310),white)
+    draw_line(Point(0,360),Point(900,360),white)
+    aff_pol("Cliquez ici pour revenir au menu",30,Point(200,450),white)
+    O=wait_clic()
+    if O.y>=360:
+       menu_depart() 
+       
+       
+def menu_village(): #Charge le menu principal
+    load_image("village jour.jpg",Point(-50,20))
+    draw_fill_rectangle(Point(50,540),150,100,black)
+    aff_pol("Jeu créé par Cyril,",10,Point(5,520),white)
+    aff_pol("Valentin et",10,Point(5,530),white)
+    aff_pol("Anthony",10,Point(5,540),white)
+    aff_pol("Où voulez-vous vous rendre aventurier/ère ?",25,Point(10,50),black)
+    aff_pol("Veuillez utilisez le clavier pour les choix.",20,Point(480,500),black)
+    draw_rectangle(Point(250,180),200,150,black)
+
+
+
+
+def selection():
+    a="Labyrinthe"
+    b="Marchand"
+    c="Inventaire"
+    x=252
+    y=135
+    draw_fill_rectangle(Point(450,300),900,600,black)
+    menu_village()
+    draw_fill_rectangle(Point(x,y),195,45,white)
+    aff_pol(a,25,Point(170,120),black)
+    aff_pol(b,25,Point(170,160),black)
+    aff_pol(c,25,Point(170,200),black)
+    position = 0
+    continuer =1
+    while continuer:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                continuer = 0
+            if event.type == KEYDOWN : #Une touche est pressée
+                if event.key == K_DOWN and position <= 1: #Fait descendre le cadre blanc
+                    menu_village()
+                    y=y+40
+                    draw_fill_rectangle(Point(x,y),195,45,white)
+                    aff_pol(b,25,Point(170,160),black)
+                    aff_pol(a,25,Point(170,120),black)
+                    aff_pol(c,25,Point(170,200),black)
+                    position += 1
+                if event.key == K_UP and position >= 1:
+                    menu_village()
+                    y=y-40
+                    draw_fill_rectangle(Point(x,y),195,45,white) #Fait monter le cadre blanc
+                    aff_pol(b,25,Point(170,160),black)
+                    aff_pol(a,25,Point(170,120),black)
+                    aff_pol(c,25,Point(170,200),black)
+                    position -= 1
+                #if event.key == K_RETURN and position == 0: #lance le jeu
+                    #Jeu du labyrinthe
+                if event.key == K_RETURN and position == 1: #lance le menu du marchand
+                    marchand()
+                #if event.key == K_RETURN and position >= 1: #Lance l'inventaire
+                    #Inventaire
+
+def marchand(): #Charge le menu du marchand
+    draw_fill_rectangle(Point(450,300),900,600,black)
+    load_image("marchand.jpg",Point(50,0)) #Charge l'image de fond
+    draw_fill_rectangle(Point(450,550),900,100,black)
+    aff_pol("Bonjour et soyez le bienvenu chez le marchand !",25,Point(100,530),white)
+    wait_clic() #Attend un clic
+    load_image("marchand.jpg",Point(50,0))
+    draw_fill_rectangle(Point(450,550),900,100,black)
+    aff_pol("Que souhaitez-vous acheter ?",25,Point(100,530),white)
+    draw_rectangle(Point(225,300),200,450,white)
+    load_image("epee1.png",Point(150,90)) #Charge les images des objets à acheter
+    load_image("gant1.png",Point(150,170))
+    load_image("casque1.jpg",Point(150,270))
+    load_image("botte.jpg",Point(150,350))
+    draw_rectangle(Point(700,500),110,50,white)
+    aff_pol("PO : ",20,Point(670,490),white)#Charge le montant de l'argent
+    f=open("sauvegarde.txt",'rb')
+    a=pickle.load(f)
+    f.close()
+    texte=str(a['argent'])
+    aff_pol(texte,20,Point(690,490),white)#Charge le montant de l'argent
+    b=a['t']
+    #while 1:
+    C=wait_clic() #Attend un clic
+        #if C.x>=150 and C.x<=200 and C.y>=90 and C.y<=141 and a['argent']>=100 and ('epee' not in b):
+            #Ajouter l'achat de l'épée en fonction de l'argent
+            #a['argent']-=100
+            #a['t'].append("epee")
+        #if C.x>=150 and C.x<=200 and C.y>=170 and C.y<=240 and a['argent']=>100 and ('gants' not in b):
+            #Ajouter l'achat des gants en fonction de l'argent
+            #a['argent']-=100
+            #a['t'].append("gants")
+        #if C.x>=150 and C.x<=200 and C.y>=270 and C.y<=315 and a['argent']>=100 and ('casque' not in b):
+            #Ajouter l'achat du casque en fonction de l'argent
+            #a['argent']-=100
+            #a['t'].append("casque")    
+        #if C.x>=150 and C.x<=200 and C.y>=350 and C.y<=389 and a['argent']>=100 ('bottes' not in b):
+            #Ajoutez l'achat des bottes en fonction de l'argent
+            #a['argent']-=100
+            #a['t'].append("bottes")    
+        #if clic dans un carré de fermeture
+            #selection()
+        #else:
+            #continue
+
+
+def on_first_start():
+    """
+    Fonction qui ne se lance qu'au premier lancement du logiciel.
+    Elle initialise la sauvegarde et permet le lancement de la cinématique (pour éviter qu'elle ne se relance à chaque fois).
+    Elle peut néanmoins se relancer si l'utilsateur supprime le fichier "sauvegarde.txt"
+    """
+    f=open(r""+directory+"\sauvegarde.txt",'wb')
+    sauv_l['start']=0
+    pickle.dump(sauv_l,f)
+    f.close()
+
+def on_start():
+    """
+    Fonction qui se lance au début du jeu.
+    Elle récupère les informations sauvegardées.
+    Lance la fonction on_first_start() si c'est le premier démarrage (si le fichier sauvegarde.txt n'existe pas).
+    """
+    try:    
+        f=open(r""+directory+"\sauvegarde.txt",'rb')
+    except FileNotFoundError:
+        on_first_start()
+    finally:
+        f=open(r""+directory+"\sauvegarde.txt",'rb')
+        sauv=pickle.load(f)
+        f.close()
+        sauv_l=sauv.copy()
+        print(sauv_l,1)
+
+def aff_graph():
+    """
+    Affiche un graphisme <b>test</b> de base.
+    Affiche également les variables en temps réel et prend en charge le rafraichissement de la fenetre.
+    """
+    init_graphic(x,y,"Combat")
+    n=m[1]
+    h=j[1]
+    load_image("fond_combat.jpg",Point(0,0))
+    draw_line(Point(0,11*y/12),Point(x,11*y/12),white) #affiche l'interface graphique
+    draw_line(Point(x/4,11*y/12),Point(x/4,y),white)
+    draw_line(Point(3*x/4,11*y/12),Point(3*x/4,y),white)
+    draw_line(Point(2*x/4,11*y/12),Point(2*x/4,y),white)
+    aff_pol("Attaque",15,Point(0,11*y/12),white) #ecrit dans l'interface graphique
+    aff_pol("Magie",15,Point(x/4,11*y/12),white)
+    aff_pol("Défense",15,Point(2*x/4,11*y/12),white)
+    aff_pol("???",15,Point(3*x/4,11*y/12),white)
+    draw_rectangle(Point(135,500),80,50,white) #carré du joueur
+    draw_rectangle(Point(535,100),80,50,white) #carré du monstre
+    texte=str(j[4])
+    aff_pol(texte,15,Point(100,500),white)
+    texte=str(m[4])
+    aff_pol(texte,15,Point(500,100),white)    
+    aff_pol("HP:",15,Point(240,435),red) #vie du joueur
+    aff_pol("HP:",15,Point(90,100),red) #vie du monstre
+    aff_pol("MANA:",15,Point(240,490),blue) #mana du joueur
+    aff_pol("MANA:",15,Point(90,150),blue) #mana du monstre
+    if m[1]<=0:
+        n=m[1]+abs(m[1])
+    texte=str(n)+"/"+str(m_i[1]) #hp du monstre
+    aff_pol(texte,15,Point(150,100),red)
+    if j[1]<=0:
+        h=j[1]+abs(j[1])
+    texte=str(h)+"/"+str(j_i[1]) #hp du joueur
+    aff_pol(texte,15,Point(290,435),red)
+    texte=str(m[2])+"/"+str(m_i[2]) #mana du monstre
+    aff_pol(texte,15,Point(150,150),blue)
+    texte=str(j[2])+"/"+str(j_i[2]) #mana du joueur
+    aff_pol(texte,15,Point(290,490),blue)
+    if m[4]=='Loup':
+        load_image_transp("loup.png",Point(350,225)) #300x187
+    if m[4]=='Rat':
+        load_image_transp("rat.png",Point(350,225))
+    if m[4]=='Ours':
+        load_image_transp("ours.png",Point(350,225))
+
+
+def tour_j(def_m):
+    """
+    Fonction décrivant les actions du joueur.
+    Si le joueur clique sur "Attaque", le monstre perd des points de vie.
+    Si le joueur clique sur "Magie", le monstre perd des points de vie et le joueur du mana.
+    Si le joueur clique sur "Défense", le joueur se défend et augmente sa défense d'un point pour la prochaine attaque du monstre.
+    Si le joueur a cliqué sur "Attaque", sur "Magie" ou sur "Défense", finit le tour du joueur, et passe au tour du monstre.
+    Si le joueur clique sur "???", ne fait rien.
+    Si le joueur ne clique pas dans les cases appropriées, ne fait rien.
+    """
+    t=1
+    P=wait_clic()
+    while t==1:
+        if P.y<=(11*x/12): #si clic pas dans le grand rectangle du bas
+            tour_j(m[3])
+        if P.x<=(x/4) and P.y>=(11*x/12): #si clic dans attaque
+            m[1]-=j[0]-m[3]
+            aff_graph()
+            aff_pol("Vous attaquez le monstre, il perd "+str(j[0]-m[3])+" pdv ("+str(j[0])+"-sa défense(="+str(m[3])+"))",10,Point(x/4-100,y/2),red)
+            attendre(1250)
+        elif P.x<=(2*x/4) and P.x>=(x/4) and P.y>=(11*x/12) and j[2]>0: #si clic dans magie et si joueur a assez de magie
+            m[1]-=j[0]*2
+            j[2]-=5
+            aff_graph()
+            aff_pol("Vous magie le monstre, il perd "+str(j[0]*2)+" pdv (la défense ne rentre pas en compte)",10,Point(x/4-100,y/2),red)
+            attendre(1250)
+        elif P.x<=(2*x/4) and P.x>=(x/4) and P.y>=(11*x/12) and j[2]<=0: #si clic dans magie mais que le joueur a plus de mana
+            aff_graph()
+            aff_pol("Vous n'avez plus assez de mana",10,Point(x/4-100,y/2),red)
+            attendre(1250)
+            tour_j(m[3])
+        elif P.x<=(3*x/4) and P.x>=(2*x/4) and P.y>=(11*x/12): #si clic dans defense
+            j[3]+=1
+            aff_graph()
+            aff_pol("Vous vous défendez, vous prendrez "+str(j[3])+" de moins au prochain tour.",10,Point(x/4-100,y/2),red)
+            attendre(1250)
+        else: #si clic dans ??? + gestion bug (mauvais clic)
+            aff_graph()
+            aff_pol("Rien ne se passe, cliquez autre part.",10,Point(x/4-100,y/2),red)
+            tour_j(m[3])
+        t=0 #sortie de la boucle une fois une action effectuée
+    m[3]=m_i[3] #reset la valeur de l'armure
+
+def tour_m(def_j):
+    """
+    Fonction décrivant les actions du monstre.
+    Fonctionne avec une "IA", qui est en fait une variable aléatoire comprise entre 0 et 100. Si cette variable est comprise entre 0 et 75, le monstre attaque, sinon le monstre se défend.
+    """
+    aff_graph() #affiche tour du monstre
+    aff_pol("Tour du monstre",40,Point(x/4-100,y/2),red)
+    attendre(2500)
+    aff_graph()
+    ia=alea_int(0,100) #la fameuse IA
+    t=1
+    while t==1:
+        if 0<=ia<75: #75% de chance que le monstre attaque
+            if j[3]>=m[0]:
+                j[1]-=0
+                aff_graph()
+                aff_pol("Le monstre attaque, vous avez perdu 0 pdv (votre défense était trop grande)",10,Point(x/4-100,y/2),red)
+                attendre(1250)
+            else:
+                j[1]-=m[0]-j[3]
+                aff_graph()
+                aff_pol("Le monstre attaque, vous avez perdu "+str((m[0]-j[3]))+" pdv ("+str(m[0])+"-votre défense(="+str(j[3])+"))",10,Point(x/4-100,y/2),red)
+                attendre(1250)
+        elif 75<=ia<=100: #25% de chance que le monstre se défende
+            m[3]+=1
+            aff_graph()
+            aff_pol("Le monstre se défend, il prendra moins de dégâts! Son armure est désormais de "+str(m[3])+".",10,Point(x/4-100,y/2),red)
+            attendre(1250)
+        t=0 #sortie de la boucle une fois une action effectuée
+    j[3]=j_i[3] #reset la valeur de l'armure
+
+def fin_combat():
+    money=alea_int(0,50)
+    if m[4]=="Loup":
+        money=money+alea_int(10,20)
+    elif m[4]=="Ours":
+        money=money+alea_int(20,50)
+    sauv_l['argent']=money
+    print(sauv_l,2)
+    sauvegarde()
+    
+
+def sauvegarde():
+    print(sauv_l,4)
+    f=open(r""+directory+"\sauvegarde.txt",'rb')
+    a=pickle.load(f)
+    sauv_l['argent']+=a['argent']
+    sauv_l['start']=a['start']
+    sauv_l['niveau']=a['niveau']
+    sauv_l['sac']=a['sac']
+    f.close()
+    f=open(r""+directory+"\sauvegarde.txt",'wb')
+    print(sauv_l,9)
+    pickle.dump(sauv_l,f)
+    f.close()
+    print(sauv_l,8,a)
+
+
+def combat():
+    print(sauv_l,3)
+    on_start()
+    aff_graph() #affiche le graphisme de base
+    if cbt==1:
+        while j[1]>0 and m[1]>0:
+            aff_graph()
+            aff_pol("Tour du joueur",40,Point(x/4-100,y/2),red)
+            attendre(3000)
+            aff_graph()
+            tour_j(m[3])
+            if j[1]<=0 or m[1]<=0: #empeche le tour suivant si le monstre/joueur meurt
+                break
+            aff_graph()
+            tour_m(j[3])
+    if m[1]<=0:
+        aff_graph()
+        aff_pol("Vous avez gagné",50,Point(x/4-100,y/2),red)
+        attendre(1250)
+    else:
+        aff_graph()
+        aff_pol("Vous avez perdu",50,Point(x/4-100,y/2),red)
+        attendre(1250)
+    fin_combat()
+    print(sauv_l,5)
+    wait_escape() #remplacer par reprise du labyrinthe/respawn si mort
+
+def main():
+    init_graphic(900,600,"Mini-RPG")
+    print(sauv_l,0)
+    on_start()
+    menu_depart()
+    combat()
+    
+print(main())
